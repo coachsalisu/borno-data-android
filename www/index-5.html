@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Borno Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.bornodata.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1B2B;
+    --ink-2:#182A40;
+    --sand:#F3F6FB;
+    --card:#FFFFFF;
+    --blue:#2F5FDB;
+    --blue-dark:#1B3E9C;
+    --emerald:#1C9D6B;
+    --coral:#E15B4D;
+    --slate:#5E6B77;
+    --slate-light:#9AA5AD;
+    --line:#E1E5F0;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sand);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #shell{
+    width:100%;
+    max-width:440px;
+    min-height:100vh;
+    background:var(--sand);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  h1,h2,h3{font-family:'Sora',sans-serif; margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* Header */
+  #topbar{
+    background:var(--sand);
+    color:var(--ink);
+    padding:18px 20px 4px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky; top:0; z-index:20;
+  }
+  #topbar .brand{
+    font-family:'Sora',sans-serif;
+    font-weight:800;
+    font-size:17px;
+    letter-spacing:-0.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #back-btn{
+    background:none;border:none;color:var(--ink);font-size:15px;font-family:'Inter';
+    display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 0;
+  }
+
+  /* Content */
+  #content{
+    flex:1;
+    padding:6px 18px 110px;
+    overflow-y:auto;
+  }
+
+  /* Greeting row */
+  .greet-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:6px 0 18px;
+  }
+  .greet-text .hi{font-size:12.5px; color:var(--slate); display:flex; align-items:center; gap:5px;}
+  .greet-text h1{font-size:24px; letter-spacing:-0.02em; margin-top:2px;}
+  .avatar-btn{
+    width:42px; height:42px; border-radius:50%;
+    background:var(--card); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:17px; color:var(--blue);
+  }
+
+  /* Balance card — gradient, matches brand blue */
+  .balance-card{
+    position:relative;
+    border-radius:20px;
+    padding:20px 20px 18px;
+    background:linear-gradient(135deg, #4A7CF0 0%, var(--blue) 55%, var(--blue-dark) 100%);
+    color:#fff;
+    overflow:hidden;
+    box-shadow:0 14px 26px -14px rgba(47,95,219,0.55);
+  }
+  .balance-label{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:rgba(255,255,255,0.8);
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .balance-row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .balance-amount{
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .eye-btn{
+    background:transparent; border:none; color:rgba(255,255,255,0.85);
+    cursor:pointer; font-size:14px; padding:0;
+  }
+  .account-row{
+    margin-top:16px;
+    background:rgba(255,255,255,0.14);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .account-row .acct-info{font-size:11.5px; color:rgba(255,255,255,0.85); line-height:1.5;}
+  .account-row .acct-number{font-size:14px; font-weight:700; color:#fff; margin-top:1px;}
+  .copy-btn{background:none; border:none; color:#fff; font-size:15px; cursor:pointer; flex-shrink:0;}
+
+  .btn-row{display:flex; gap:10px; margin-top:16px;}
+  .cashback-row{
+    margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.18);
+    display:flex; align-items:center; justify-content:space-between; color:#fff; font-size:13px;
+  }
+  .withdraw-pill{
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.35); color:#fff;
+    font-family:'Sora'; font-weight:700; font-size:11.5px; padding:7px 12px; border-radius:20px; cursor:pointer;
+  }
+  .withdraw-pill:disabled{opacity:0.45; cursor:not-allowed;}
+  .pill-btn{
+    flex:1; border-radius:12px; padding:13px 10px; font-family:'Sora'; font-weight:700; font-size:13.5px;
+    display:flex; align-items:center; justify-content:center; gap:7px; cursor:pointer; border:none;
+  }
+  .pill-btn.primary{background:var(--ink); color:#fff;}
+  .pill-btn.secondary{background:var(--card); color:var(--blue-dark); border:1.5px solid var(--line);}
+
+  /* Services grid */
+  .section-title{
+    font-size:15px;
+    color:var(--ink);
+    margin:26px 0 12px;
+    font-weight:700;
+    font-family:'Sora';
+  }
+  .services-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .service-tile{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 6px 12px;
+    text-align:center;
+    cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:9px;
+  }
+  .service-tile .ic{
+    width:44px;height:44px;
+    border-radius:50%;
+    background:#E9EFFC;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px; color:var(--blue);
+  }
+  .service-tile span{font-size:11.5px; font-weight:600; color:var(--ink);}
+
+  /* Floating support button */
+  #support-fab{
+    position:fixed;
+    right:calc(50% - 220px + 18px);
+    bottom:86px;
+    width:52px; height:52px; border-radius:50%;
+    background:var(--emerald); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; border:none; cursor:pointer; z-index:25;
+    box-shadow:0 10px 20px -8px rgba(28,157,107,0.6);
+  }
+  #channel-fab{
+    position:fixed;
+    right:calc(50% - 220px + 22px);
+    bottom:150px;
+    width:44px; height:44px; border-radius:50%;
+    background:var(--ink); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; border:none; cursor:pointer; z-index:25;
+    box-shadow:0 10px 20px -8px rgba(15,27,43,0.5);
+  }
+  @media (max-width:440px){ #support-fab{ right:18px; } #channel-fab{ right:22px; } }
+
+  /* Auth screen */
+  .auth-hero{
+    background:var(--ink); color:#fff;
+    margin:-6px -18px 0; padding:44px 20px 50px;
+  }
+  .auth-hero h1{font-size:28px; line-height:1.15; letter-spacing:-0.02em;}
+  .auth-sheet{
+    background:var(--card); border-radius:22px 22px 0 0;
+    margin:-26px -18px 0; padding:26px 20px 10px; position:relative;
+  }
+  .input-wrap{position:relative;}
+  .input-wrap input{padding-right:42px;}
+  .input-check{position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    width:20px; height:20px; border-radius:50%; background:var(--emerald); color:#fff;
+    font-size:11px; display:flex; align-items:center; justify-content:center;}
+  .eye-toggle-input{position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; color:var(--slate); font-size:15px; padding:4px;}
+  .valid-msg{font-size:11.5px; color:var(--emerald); margin-top:5px; display:flex; align-items:center; gap:5px;}
+  .invalid-msg{font-size:11.5px; color:var(--coral); margin-top:5px;}
+  .terms-row{display:flex; align-items:flex-start; gap:9px; margin:18px 0 4px; font-size:12.5px; color:var(--slate); line-height:1.4;}
+  .terms-row input{margin-top:3px; flex-shrink:0;}
+  .switch-link{text-align:center; margin:18px 0 6px; font-size:12.5px; color:var(--slate);}
+  .switch-link a{color:var(--blue-dark); font-weight:700; cursor:pointer;}
+
+  /* PIN entry */
+  .pin-input{
+    width:100%; text-align:center; font-size:28px; letter-spacing:20px;
+    padding:16px 0 16px 20px; border-radius:12px; border:1.5px solid var(--line);
+    font-family:'IBM Plex Mono',monospace; margin-top:6px;
+  }
+
+  /* Transaction list */
+  .tx-row{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:8px;
+  }
+  .tx-icon{
+    width:36px;height:36px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px; font-weight:700; flex-shrink:0;
+  }
+  .tx-mid{flex:1; min-width:0;}
+  .tx-title{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .tx-sub{font-size:11.5px; color:var(--slate); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tx-amt{font-size:13.5px; font-weight:600;}
+  .tx-amt.neg{color:var(--coral);}
+  .tx-amt.pos{color:var(--emerald);}
+  .chat-pill{
+    background:#25D366; color:#fff; border:none; border-radius:999px;
+    padding:8px 16px; font-size:12.5px; font-weight:700; font-family:'Inter',sans-serif;
+    flex-shrink:0; cursor:pointer;
+  }
+  .site-banner{
+    display:flex; align-items:center; gap:10px;
+    background:#EEF2FF; border:1px solid var(--blue); border-radius:10px;
+    padding:10px 12px; margin-bottom:14px; font-size:12.5px; color:var(--blue-dark);
+  }
+  .site-banner-text{flex:1;}
+  .site-banner-close{background:none; border:none; font-size:18px; line-height:1; color:var(--blue-dark); cursor:pointer; padding:0 4px;}
+  .empty-state{
+    text-align:center; padding:40px 10px; color:var(--slate); font-size:13px;
+  }
+
+  /* Provider grid (networks / TV) */
+  .provider-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px;}
+  .provider-card{
+    border-radius:12px; padding:16px 12px; cursor:pointer; border:2px solid transparent;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:14px; color:#fff;
+    text-align:center;
+  }
+  .provider-card.selected{border-color:var(--ink); box-shadow:0 0 0 2px var(--blue);}
+
+  .field-label{font-size:12px; font-weight:600; color:var(--slate); margin:16px 0 6px; text-transform:uppercase; letter-spacing:0.05em;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--slate); margin-top:12px; padding:10px 12px; background:var(--card); border:1px solid var(--line); border-radius:10px;}
+  .checkbox-row input{width:16px; height:16px; flex-shrink:0;}
+  .pill-toggle-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .pill-toggle{
+    background:var(--card); border:1.5px solid var(--blue); color:var(--blue-dark);
+    border-radius:999px; padding:8px 16px; font-size:12.5px; font-weight:700;
+    font-family:'Inter',sans-serif; cursor:pointer;
+  }
+  .pill-toggle.selected{background:var(--blue); color:#fff;}
+  input[type=text], input[type=tel], input[type=number], input[type=password]{
+    width:100%; padding:13px 14px; border-radius:10px; border:1.5px solid var(--line);
+    font-size:15px; font-family:'IBM Plex Mono',monospace; background:var(--card); color:var(--ink);
+  }
+  input:focus{outline:none; border-color:var(--blue-dark);}
+
+  .plan-list{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+  .plan-row{
+    background:var(--card); border:1.5px solid var(--line); border-radius:12px;
+    padding:13px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  }
+  .plan-row.selected{border-color:var(--blue-dark); background:#FFF7EA;}
+  .plan-name{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .plan-sub{font-size:11px; color:var(--slate); margin-top:2px;}
+  .plan-price{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13.5px; color:var(--ink);}
+
+  .primary-btn{
+    width:100%; padding:15px; border:none; border-radius:12px; margin-top:22px;
+    background:var(--ink); color:var(--sand); font-family:'Sora',sans-serif;
+    font-weight:700; font-size:14.5px; cursor:pointer;
+  }
+  .primary-btn:disabled{background:#C9CDD3; color:#7A828A; cursor:not-allowed;}
+  .primary-btn.confirm{background:var(--emerald);}
+
+  .disco-list{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+  .disco-row{
+    background:var(--card); border:1.5px solid var(--line); border-radius:10px;
+    padding:12px 14px; font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  .disco-row.selected{border-color:var(--blue-dark); background:#FFF7EA;}
+
+  /* Bottom nav */
+  #bottomnav{
+    position:sticky; bottom:0; left:0; right:0;
+    background:var(--card);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:20;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:6px 0; cursor:pointer; color:var(--slate-light); font-size:10.5px; font-weight:600;
+    border:none; background:none; font-family:'Inter';
+  }
+  .nav-item.active{color:var(--ink);}
+  .nav-item .dot{width:5px;height:5px;border-radius:50%; background:var(--blue); opacity:0; margin-top:1px;}
+  .nav-item.active .dot{opacity:1;}
+
+  /* Toast */
+  #toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--sand); padding:12px 20px; border-radius:10px;
+    font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease;
+    z-index:50; white-space:nowrap; box-shadow:0 8px 20px -6px rgba(0,0,0,0.4);
+    display:flex; align-items:center; gap:8px;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* Modal */
+  #modal-overlay{
+    position:fixed; inset:0; background:rgba(15,27,43,0.55); display:none;
+    align-items:flex-end; justify-content:center; z-index:60;
+  }
+  #modal-overlay.show{display:flex;}
+  #modal{
+    background:var(--card); width:100%; max-width:440px; border-radius:20px 20px 0 0;
+    padding:22px 20px calc(22px + env(safe-area-inset-bottom)); max-height:80vh; overflow-y:auto;
+  }
+  .modal-handle{width:36px; height:4px; background:var(--line); border-radius:2px; margin:0 auto 16px;}
+
+  .loading-wrap{display:flex; align-items:center; justify-content:center; height:60vh; color:var(--slate); font-size:13px; gap:10px;}
+  .spinner{width:16px;height:16px;border:2px solid var(--line); border-top-color:var(--ink); border-radius:50%; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Shown the instant a purchase is submitted, until the server responds —
+     this is the fix for "nothing tells me it's working," which was leading
+     people to tap Buy again out of uncertainty. Sits above everything,
+     including open modals, and blocks taps underneath it (pointer-events
+     auto by default since it's a normal block element in the flow). */
+  #processing-overlay{
+    position:fixed; inset:0; background:rgba(15,27,43,0.75); z-index:200;
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; color:#fff; font-size:14px; font-weight:600; text-align:center; padding:20px;
+  }
+  #processing-overlay.show{display:flex;}
+  #processing-overlay .spinner{width:28px; height:28px; border-width:3px; border-color:rgba(255,255,255,0.3); border-top-color:#fff;}
+  .processing-hint{font-size:12px; font-weight:400; color:rgba(255,255,255,0.75); margin-top:-4px;}
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="topbar">
+    <div class="brand"><img src="logo-header.png" alt="Borno Data" style="height:26px; width:auto;">Borno Data</div>
+  </div>
+  <div id="content"></div>
+  <button id="channel-fab" aria-label="Join WhatsApp Channel">&#128226;</button>
+  <button id="support-fab" aria-label="Chat with support">&#128172;</button>
+  <div id="bottomnav"></div>
+</div>
+<div id="toast"></div>
+<div id="modal-overlay"><div id="modal"></div></div>
+<div id="processing-overlay"><div class="spinner"></div>Processing your request…<div class="processing-hint">Please wait — don't tap Buy again</div></div>
+
+<script>
+// This app was first built and tested inside Claude's artifact preview,
+// which provides a `window.storage` API for saving data. That API does
+// NOT exist on a normal website — so on bornodata.com, window.storage
+// would be undefined and every save/load would throw. This polyfill fills
+// it in with localStorage whenever the real thing isn't present, so the
+// exact same code works both in preview and on the live site.
+if(!window.storage){
+  window.storage = {
+    async get(key){
+      const v = localStorage.getItem(key);
+      if(v === null) throw new Error("not found");
+      return { key, value: v };
+    },
+    async set(key, value){
+      localStorage.setItem(key, value);
+      return { key, value };
+    },
+    async delete(key){
+      localStorage.removeItem(key);
+      return { key, deleted: true };
+    },
+    async list(prefix){
+      const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+      return { keys };
+    },
+  };
+}
+
+// TODO: set this to your deployed backend URL once it's hosted, e.g.
+// "https://api.bornodata.com". Left empty, the app runs in local demo
+// mode — signup/login work and feel real, but accounts only exist in this
+// browser, not on a real server. Nothing built for demo mode is secure
+// enough for real passwords; it exists purely so the flow is testable
+// before the backend has a home.
+const API_BASE_URL = "https://api.bornodata.com";
+
+const SESSION_KEY = "borno-data-session";
+let session = null; // { email, fullName, token }
+let state = null;
+let view = "auth";
+let sub = {}; // scratch state for in-progress forms
+let dismissedBannerText = null; // persists across navigation, unlike sub — set to the banner text once closed
+let showBalance = true;
+let authMode = "login"; // or "signup"
+let authError = "";
+let incomingReferralCode = null; // set at boot from ?ref= in the URL, if present
+let siteSettings = { whatsappSupport: "2348065389567", whatsappChannel: "https://whatsapp.com/channel/0029VbE3xuv3gvWVg9Ls1B0A" };
+async function loadSiteSettings(){
+  try{ siteSettings = await apiRequest("/api/settings"); }catch(e){}
+}
+
+const NETWORKS = [
+  {id:"mtn", name:"MTN", color:"#FFCB05", text:"#0F1B2B",
+    plans:[
+      {id:"m1",name:"1GB",sub:"30 days",price:550},
+      {id:"m2",name:"2GB",sub:"30 days",price:1100},
+      {id:"m3",name:"5GB",sub:"30 days",price:2500},
+      {id:"m4",name:"10GB",sub:"30 days",price:4500},
+    ]},
+  {id:"airtel", name:"Airtel", color:"#E4002B", text:"#FFFFFF",
+    plans:[
+      {id:"a1",name:"1.5GB",sub:"30 days",price:550},
+      {id:"a2",name:"3GB",sub:"30 days",price:1100},
+      {id:"a3",name:"6GB",sub:"30 days",price:2400},
+      {id:"a4",name:"11GB",sub:"30 days",price:4300},
+    ]},
+  {id:"glo", name:"Glo", color:"#77B92E", text:"#FFFFFF",
+    plans:[
+      {id:"g1",name:"1.35GB",sub:"30 days",price:500},
+      {id:"g2",name:"2.9GB",sub:"30 days",price:1000},
+      {id:"g3",name:"5.8GB",sub:"30 days",price:2000},
+      {id:"g4",name:"10GB",sub:"30 days",price:3500},
+    ]},
+  {id:"9mobile", name:"9mobile", color:"#00A651", text:"#FFFFFF",
+    plans:[
+      {id:"n1",name:"1GB",sub:"30 days",price:500},
+      {id:"n2",name:"2GB",sub:"30 days",price:1000},
+      {id:"n3",name:"4.5GB",sub:"30 days",price:2000},
+      {id:"n4",name:"11GB",sub:"30 days",price:4000},
+    ]},
+];
+
+const TV = [
+  {id:"dstv", name:"DSTV", color:"#0C3B6E", text:"#FFFFFF",
+    plans:[
+      {id:"d1",name:"Padi",sub:"1 month",price:4400},
+      {id:"d2",name:"Yanga",sub:"1 month",price:6000},
+      {id:"d3",name:"Confam",sub:"1 month",price:11000},
+      {id:"d4",name:"Compact",sub:"1 month",price:19000},
+      {id:"d5",name:"Premium",sub:"1 month",price:44500},
+    ]},
+  {id:"gotv", name:"GOtv", color:"#00953B", text:"#FFFFFF",
+    plans:[
+      {id:"go1",name:"Smallie",sub:"1 month",price:1900},
+      {id:"go2",name:"Jinja",sub:"1 month",price:3900},
+      {id:"go3",name:"Jolli",sub:"1 month",price:5800},
+      {id:"go4",name:"Max",sub:"1 month",price:8500},
+    ]},
+  {id:"startimes", name:"StarTimes", color:"#E4032E", text:"#FFFFFF",
+    plans:[
+      {id:"s1",name:"Nova",sub:"1 month",price:1700},
+      {id:"s2",name:"Basic",sub:"1 month",price:3200},
+      {id:"s3",name:"Smart",sub:"1 month",price:3800},
+      {id:"s4",name:"Classic",sub:"1 month",price:5000},
+    ]},
+];
+
+const DISCOS = ["Ikeja Electric (IKEDC)","Eko Electric (EKEDC)","Abuja Electric (AEDC)","Port Harcourt Electric (PHED)","Kano Electric (KEDCO)","Ibadan Electric (IBEDC)"];
+
+const AIRTIME_AMOUNTS = [100,200,500,1000,2000,5000];
+
+const EXAMS = [
+  {id:"waec", name:"WAEC", sub:"Result checker pin", price:3400},
+  {id:"neco", name:"NECO", sub:"Result checker pin", price:1300},
+  {id:"nabteb", name:"NABTEB", sub:"Result checker pin", price:900},
+  {id:"nbais", name:"NBAIS", sub:"Result checker pin", price:900},
+];
+
+const A2C_RATES = { mtn:0.85, airtel:0.83, glo:0.80, "9mobile":0.80 };
+const SMS_UNIT_PRICE = 4; // ₦ per SMS unit
+
+const NAV_ITEMS = [
+  {id:"home", label:"Home", icon:"&#8962;"},
+  {id:"history", label:"History", icon:"&#128337;"},
+  {id:"support", label:"Support", icon:"&#127911;"},
+  {id:"me", label:"Me", icon:"&#128100;"},
+];
+
+function greetingWord(){
+  const h = new Date().getHours();
+  if(h < 12) return "Good morning";
+  if(h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function isValidName(v){ const t = (v||"").trim(); return t.length >= 3 && t.includes(" "); }
+function isValidPhone(v){ return /^0\d{10}$/.test((v||"").trim()); }
+function isValidEmailFormat(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||"").trim()); }
+
+let existingDemoEmails = new Set();
+async function loadExistingEmails(){
+  try{
+    const res = await window.storage.get("borno-data-demo-users", false);
+    existingDemoEmails = new Set(Object.keys(JSON.parse(res.value)));
+  }catch(e){
+    existingDemoEmails = new Set();
+  }
+}
+let emailCheckToken = 0;
+async function checkEmailAvailability(email){
+  const token = ++emailCheckToken;
+  await loadExistingEmails();
+  if(token !== emailCheckToken) return; // a newer check has superseded this one
+  sub.emailStatus = existingDemoEmails.has(email.toLowerCase().trim()) ? "taken" : "available";
+  rerenderKeepingFocus();
+}
+
+function naira(n){
+  return "₦" + Number(n).toLocaleString("en-NG", {minimumFractionDigits:0});
+}
+
+function walletCacheKey(){ return "borno-data-wallet-cache:" + session.email; }
+
+// Wallet balance, transactions, and referral stats live on the server.
+// showSpinner controls whether this blanks the screen with a loading state
+// first — true only for the very first load on a device with no cached
+// copy yet. Every other call (after a purchase, after funding, on repeat
+// visits) refreshes silently in the background so the app never feels like
+// it's reloading itself.
+async function loadState(showSpinner = true){
+  if(showSpinner){
+    document.getElementById("content").innerHTML = `<div class="loading-wrap"><div class="spinner"></div>Loading…</div>`;
+  }
+  try{
+    const data = await apiRequest("/api/wallet");
+    state = {
+      balance: Number(data.balance || 0),
+      cashbackBalance: Number(data.cashbackBalance || 0),
+      commissionBalance: Number(data.commissionBalance || 0),
+      transactions: data.transactions || [],
+      virtualAccount: data.virtualAccount || null,
+      referralCode: data.referralCode || null,
+      referralCount: data.referralCount || 0,
+      referralEarnings: Number(data.referralEarnings || 0),
+      tier: data.tier || "user",
+      dailySpent: Number(data.dailySpent || 0),
+      dailyLimit: Number(data.dailyLimit || 15000),
+      tierUpgradeCost: Number(data.tierUpgradeCost || 1000),
+      // Whether a PIN exists at all lives on the server now (hashed, same
+      // as the password) — the app only ever knows yes/no, never the PIN
+      // itself, and never compares it locally. Each purchase sends the
+      // digits the person just typed straight to the server for that one
+      // request; nothing is cached here.
+      hasTransactionPin: Boolean(data.hasTransactionPin),
+    };
+    try{ await window.storage.set(walletCacheKey(), JSON.stringify(state), false); }catch(e){}
+  }catch(e){
+    if(!state){
+      // No cached copy to fall back on and the fetch failed — this is the
+      // only case that shows an error instead of just quietly retrying later.
+      toast("Could not load your wallet — check your connection");
+      state = { balance: 0, cashbackBalance: 0, commissionBalance: 0, transactions: [], virtualAccount: null, referralCode: null, referralCount: 0, referralEarnings: 0, hasTransactionPin: false };
+    }
+    // If we already have cached state on screen, keep showing it silently
+    // rather than interrupting with an error for a background refresh.
+  }
+  render();
+}
+
+/* ---------- AUTH ---------- */
+
+async function apiRequest(path, opts = {}){
+  const headers = { "Content-Type": "application/json" };
+  if(session?.token) headers.Authorization = "Bearer " + session.token;
+  const res = await fetch(API_BASE_URL + path, { ...opts, headers });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok){
+    const err = new Error(data.error || "Something went wrong");
+    err.status = res.status;
+    err.detail = data.detail;
+    throw err;
+  }
+  return data;
+}
+
+// Local, insecure stand-in for the backend so the signup/login flow is
+// testable before a real server exists. NOT how real passwords should ever
+// be stored — this only runs when API_BASE_URL is left empty.
+async function demoAuth(mode, {email, password, fullName, phone}){
+  const key = "borno-data-demo-users";
+  let users = {};
+  try{ users = JSON.parse((await window.storage.get(key, false)).value); }catch(e){}
+  const normalized = (email || "").toLowerCase().trim();
+
+  if(mode === "signup"){
+    if(!normalized || !normalized.includes("@")) throw new Error("Enter a valid email");
+    if(!password || password.length < 8) throw new Error("Password must be at least 8 characters");
+    if(users[normalized]) throw new Error("An account with that email already exists");
+    users[normalized] = { password, fullName: fullName || "", phone: phone || "" };
+    await window.storage.set(key, JSON.stringify(users), false);
+    return { token: "demo-" + normalized, user: { email: normalized, fullName: fullName || "" } };
+  } else {
+    const u = users[normalized];
+    if(!u || u.password !== password) throw new Error("Incorrect email or password");
+    return { token: "demo-" + normalized, user: { email: normalized, fullName: u.fullName } };
+  }
+}
+
+function biometricKey(){ return "borno-data-biometric-enabled:" + session.email; }
+async function isBiometricEnabled(){
+  if(!session) return false;
+  try{ return (await window.storage.get(biometricKey(), false)).value === "true"; }catch(e){ return false; }
+}
+// Cached rather than checked live on every render, since both checks
+// below are async (native plugin calls) and render() itself is
+// synchronous — refreshed once after unlocking, and again right after the
+// person taps the toggle.
+let biometricSupported = false;
+let biometricEnabledCache = false;
+async function refreshBiometricStatus(){
+  biometricSupported = await biometricAvailable();
+  biometricEnabledCache = await isBiometricEnabled();
+  render();
+}
+
+async function loadSession(){
+  try{
+    const res = await window.storage.get(SESSION_KEY, false);
+    session = JSON.parse(res.value);
+    view = "home";
+  }catch(e){
+    session = null;
+    view = "auth";
+  }
+  // If this device has fingerprint unlock turned on for this account,
+  // gate the app behind it before showing anything else — the session
+  // token itself stays exactly as valid as before; the fingerprint just
+  // controls whether THIS device gets to use it right now.
+  if(session && await isBiometricEnabled()) view = "lock";
+  // Establishes the base of the back-button history stack for this page
+  // load — without this, the very first back-press after opening the app
+  // would have nowhere to land and would exit straight to the browser.
+  history.replaceState({ view }, "", "");
+  // setupPushNotifications() is intentionally NOT called yet — see the
+  // big comment on that function below for why.
+  if(session && view !== "lock") refreshBiometricStatus();
+}
+
+// Registers this device for push notifications — only does anything when
+// running inside the real Android app (via Capacitor), never inside a
+// regular browser tab, since window.Capacitor only exists in the native
+// shell.
+//
+// ⚠️ NOT CALLED AUTOMATICALLY YET. Calling PushNotifications.register()
+// before the native project has a real Firebase project connected
+// (google-services.json + the Firebase Gradle setup — see README "Push
+// Notifications") crashes the whole app on some devices, because the
+// plugin's Android code assumes Firebase is already initialized and
+// throws natively when it isn't — a crash at that layer can't be caught
+// by a JS try/catch here, so guarding it in JavaScript doesn't fully fix
+// it. Once Firebase is genuinely set up, re-add the two lines
+//   `setupPushNotifications();`
+// right after `refreshBiometricStatus();` above and after the same line
+// in submitAuth() (search for "refreshBiometricStatus();" — there are two
+// call sites) to turn this back on.
+async function setupPushNotifications(){
+  if(!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  try{
+    const { PushNotifications } = window.Capacitor.Plugins || {};
+    if(!PushNotifications) return;
+    const perm = await PushNotifications.requestPermissions();
+    if(perm.receive !== "granted") return;
+    await PushNotifications.register();
+    PushNotifications.addListener("registration", async (token) => {
+      try{ await apiRequest("/api/push/register-token", { method: "POST", body: JSON.stringify({ token: token.value, platform: "android" }) }); }
+      catch(e){ console.error("Could not register push token", e); }
+    });
+    PushNotifications.addListener("registrationError", (err) => console.error("Push registration error", err));
+    PushNotifications.addListener("pushNotificationReceived", (notification) => {
+      toast(notification.title || notification.body || "New notification");
+    });
+  }catch(e){ console.error("Push setup failed", e); }
+}
+
+/* ---------- Fingerprint unlock ---------- */
+// Not a replacement for the password — the account still logs in with
+// email+password exactly as before. This only gates access to a session
+// that's ALREADY valid on this device: fingerprint success just means
+// "let this app open", using the token already saved from the last real
+// login. If someone turns fingerprint off, or it's unavailable, the app
+// just goes straight to home as it always has.
+
+async function biometricAvailable(){
+  if(!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return false;
+  try{
+    const { NativeBiometric } = window.Capacitor.Plugins || {};
+    if(!NativeBiometric) return false;
+    const result = await NativeBiometric.isAvailable();
+    return Boolean(result?.isAvailable);
+  }catch(e){ return false; }
+}
+
+async function enableBiometricLock(){
+  const available = await biometricAvailable();
+  if(!available){ toast("Fingerprint isn't set up on this device"); return; }
+  try{ await window.storage.set(biometricKey(), "true", false); toast("✓ Fingerprint unlock enabled"); refreshBiometricStatus(); }
+  catch(e){ toast("Could not enable fingerprint unlock"); }
+}
+async function disableBiometricLock(){
+  try{ await window.storage.set(biometricKey(), "false", false); toast("Fingerprint unlock turned off"); refreshBiometricStatus(); }
+  catch(e){}
+}
+
+function renderLock(){
+  return `
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:80vh; text-align:center; padding:0 20px;">
+      <div style="font-size:52px; margin-bottom:6px;">🫆</div>
+      <h2 style="margin:0 0 6px;">Borno Data is locked</h2>
+      <div style="color:var(--slate); font-size:13px; margin-bottom:28px;">Use your fingerprint to continue</div>
+      <button class="primary-btn" id="btn-retry-unlock" style="max-width:240px;">Try fingerprint again</button>
+      <button class="btn-link" id="btn-use-password" style="margin-top:16px; background:none; border:none; color:var(--blue-dark); font-size:13px; font-weight:600; cursor:pointer;">Use password instead</button>
+    </div>`;
+}
+
+async function attemptBiometricUnlock(){
+  try{
+    const { NativeBiometric } = window.Capacitor.Plugins || {};
+    if(!NativeBiometric){ view = "home"; render(); return; }
+    await NativeBiometric.verifyIdentity({ reason: "Unlock Borno Data", title: "Biometric login", subtitle: "", description: "" });
+    // No exception thrown = verified successfully.
+    sub.lockAttempted = false;
+    view = "home";
+    history.replaceState({ view }, "", "");
+    refreshBiometricStatus();
+  }catch(e){
+    // Cancelled or failed — stay on the lock screen; the two buttons there
+    // (retry / use password) are the way forward, not a raw error dump.
+  }
+}
+
+async function saveSession(){
+  try{ await window.storage.set(SESSION_KEY, JSON.stringify(session), false); }catch(e){}
+}
+async function clearSession(){
+  session = null;
+  state = null;
+  try{ await window.storage.delete(SESSION_KEY, false); }catch(e){}
+  view = "auth";
+  history.replaceState({ view }, "", "");
+  render();
+}
+
+async function submitAuth({email, password, fullName, phone}){
+  authError = "";
+  if(!email || !password){ authError = "Enter your email and password"; render(); return; }
+  if(authMode === "signup" && (!password || password.length < 8)){
+    authError = "Password must be at least 8 characters"; render(); return;
+  }
+  try{
+    const result = API_BASE_URL
+      ? await apiRequest("/api/auth/" + authMode, { method:"POST", body: JSON.stringify({email, password, fullName, phone, referralCode: incomingReferralCode}) })
+      : await demoAuth(authMode, {email, password, fullName, phone});
+    const isSignup = authMode === "signup";
+    session = { email: result.user.email, fullName: result.user.fullName, token: result.token };
+    await saveSession();
+    view = "home";
+    history.replaceState({ view }, "", ""); // fresh stack base after login, rather than stacking on top of the auth screen
+    sub = {};
+    await loadState();
+    loadSiteSettings();
+    // setupPushNotifications() intentionally not called yet — see the big
+    // comment on that function.
+    refreshBiometricStatus();
+    if(isSignup) startPinSetup();
+  }catch(e){
+    authError = e.message || "Something went wrong";
+    render();
+  }
+}
+
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+function closeModal(){
+  document.getElementById("modal-overlay").classList.remove("show");
+}
+function openModal(html){
+  document.getElementById("modal").innerHTML = html;
+  document.getElementById("modal-overlay").classList.add("show");
+}
+
+// Pushes a real browser history entry per in-app view, so the phone's back
+// button steps backward through the app one screen at a time — the way
+// every native app and most web apps behave — instead of immediately
+// exiting to whatever was open before Borno Data (a browser tab list, the
+// home screen, etc). `fromPopstate` is true only when this function is
+// called *because* the back button was pressed — in that case the browser
+// already moved the history position itself, so pushing another entry
+// would double up and break the back stack.
+function goto(v, fromPopstate){
+  view = v;
+  sub = {};
+  if(!fromPopstate) history.pushState({ view: v }, "", "");
+  render();
+  document.getElementById("content").scrollTop = 0;
+}
+
+window.addEventListener("popstate", (e) => {
+  // If a modal is open, treat back as "close the modal" first rather than
+  // also changing the view underneath it — closing modal state doesn't
+  // consume the history entry (we didn't push one for opening it), so nav
+  // still proceeds below, but this avoids yanking the view out from under
+  // an open confirm/receipt dialog.
+  const modalOpen = document.getElementById("modal-overlay")?.classList.contains("show");
+  if(modalOpen) closeModal();
+  const targetView = e.state?.view || "home";
+  goto(targetView, true);
+});
+
+// Live-validation fields call this instead of render() directly. A normal
+// render() rebuilds the whole screen from scratch, which kicks the cursor
+// out of whatever input is being typed in — this restores focus and cursor
+// position afterward so typing feels continuous instead of one key at a time.
+function rerenderKeepingFocus(){
+  const active = document.activeElement;
+  const id = active && active.id;
+  const start = active && typeof active.selectionStart === "number" ? active.selectionStart : null;
+  const end = active && typeof active.selectionEnd === "number" ? active.selectionEnd : null;
+  render();
+  if(id){
+    const el = document.getElementById(id);
+    if(el){
+      el.focus();
+      if(start !== null && el.setSelectionRange){
+        try{ el.setSelectionRange(start, end); }catch(e){}
+      }
+    }
+  }
+}
+
+// Every purchase flow calls this. It posts to the backend, and on success
+// refreshes the wallet from the server so the balance and history shown are
+// always the real ones — never a locally-guessed number.
+// A single in-flight guard, shared by every purchase call site (data,
+// airtime, TV, exam pins, etc) — this is the fix for the "had to buy twice"
+// problem: without it, a fast double-tap on Confirm (natural when nothing
+// visibly changes the instant you tap) could fire two real requests to the
+// provider before the first one's response ever comes back. Guarding here,
+// in the one function every purchase flows through, protects all of them
+// at once rather than needing the same fix repeated in every handler.
+let purchaseInFlight = false;
+async function purchase(path, body){
+  if(purchaseInFlight){
+    toast("Still processing your last request — please wait");
+    return null;
+  }
+  purchaseInFlight = true;
+  document.getElementById("processing-overlay").classList.add("show");
+  try{
+    const data = await apiRequest(path, { method: "POST", body: JSON.stringify(body) });
+    if(data.wallet){
+      // The server already sent back the fresh balance/history (and
+      // hasTransactionPin) with this same response — apply it directly
+      // instead of firing a second request just to ask for what we were
+      // already just told.
+      state = { ...state, ...data.wallet };
+      render();
+    } else {
+      await loadState(false);
+    }
+    return data;
+  }catch(e){
+    toast(e.message || "Something went wrong");
+    return null;
+  }finally{
+    purchaseInFlight = false;
+    document.getElementById("processing-overlay").classList.remove("show");
+  }
+}
+
+/* ---------- RENDER ---------- */
+
+function render(){
+  const chrome = ["bottomnav","support-fab","channel-fab","topbar"].map(id => document.getElementById(id));
+  const showChrome = view !== "auth" && view !== "lock";
+  chrome.forEach(el => { if(el) el.style.display = showChrome ? "" : "none"; });
+
+  const c = document.getElementById("content");
+  if(view === "auth"){ c.innerHTML = renderAuth(); attachHandlers(); return; }
+  if(view === "lock"){ c.innerHTML = renderLock(); attachHandlers(); if(!sub.lockAttempted){ sub.lockAttempted = true; attemptBiometricUnlock(); } return; }
+
+  renderNav();
+  if(view === "home") c.innerHTML = renderHome();
+  else if(view === "data") c.innerHTML = renderDataCategory();
+  else if(view === "tv") c.innerHTML = renderCategory("tv");
+  else if(view === "bills") c.innerHTML = renderBills();
+  else if(view === "airtime") c.innerHTML = renderAirtime();
+  else if(view === "exam") c.innerHTML = renderExam();
+  else if(view === "a2c") c.innerHTML = renderA2C();
+  else if(view === "history") c.innerHTML = renderHistory();
+  else if(view === "support") c.innerHTML = renderSupport();
+  else if(view === "me") c.innerHTML = renderMe();
+  else if(view === "referral") c.innerHTML = renderReferral();
+  else if(view === "sms") c.innerHTML = renderBulkSMS();
+  else if(view === "recharge") c.innerHTML = renderRecharge();
+  attachHandlers();
+}
+
+function renderNav(){
+  const nav = document.getElementById("bottomnav");
+  nav.innerHTML = NAV_ITEMS.map(n => `
+    <button class="nav-item ${view===n.id?'active':''}" data-nav="${n.id}">
+      <span style="font-size:17px;">${n.icon}</span>
+      <span>${n.label}</span>
+      <span class="dot"></span>
+    </button>`).join("");
+}
+
+function fieldCheck(ok){
+  return ok ? `<span class="input-check">&#10003;</span>` : '';
+}
+
+function renderAuth(){
+  const isSignup = authMode === "signup";
+  const name = sub.name || "";
+  const phone = sub.phone || "";
+  const email = sub.email || "";
+  const password = sub.password || "";
+  const confirm = sub.confirmPassword || "";
+
+  const nameOk = isValidName(name);
+  const phoneOk = isValidPhone(phone);
+  const emailFormatOk = isValidEmailFormat(email);
+  const emailStatus = sub.emailStatus; // null | 'checking' | 'available' | 'taken'
+  const passOk = password.length >= 8;
+  const confirmOk = confirm.length > 0 && confirm === password;
+  const canSubmit = isSignup
+    ? nameOk && phoneOk && emailFormatOk && emailStatus === "available" && passOk && confirmOk && sub.termsAccepted
+    : email.length > 0 && password.length > 0;
+
+  return `
+    <div class="auth-hero">
+      <h1>${isSignup ? "Create Account!" : "Welcome back!"}</h1>
+    </div>
+    <div class="auth-sheet">
+      ${isSignup && incomingReferralCode ? `<div class="valid-msg" style="background:#E6F6EE; padding:10px 12px; border-radius:10px; margin-bottom:14px;">✓ Referral code ${incomingReferralCode} applied</div>` : ''}
+      ${isSignup ? `
+        <div class="field-label" style="margin-top:0;">Full Name</div>
+        <div class="input-wrap">
+          <input type="text" id="auth-name" placeholder="Your full name" value="${name}">
+          ${fieldCheck(nameOk)}
+        </div>
+        ${name ? (nameOk ? `<div class="valid-msg">✓ Valid name</div>` : `<div class="invalid-msg">Enter your first and last name</div>`) : ''}
+
+        <div class="field-label">Phone Number</div>
+        <div class="input-wrap">
+          <input type="tel" id="auth-phone" placeholder="080X XXX XXXX" value="${phone}" maxlength="11">
+          ${fieldCheck(phoneOk)}
+        </div>
+        ${phone ? (phoneOk ? `<div class="valid-msg">✓ Valid phone number</div>` : `<div class="invalid-msg">Enter an 11-digit Nigerian number</div>`) : ''}
+      ` : ''}
+
+      <div class="field-label" style="margin-top:${isSignup ? '16px' : '0'};">Email Address</div>
+      <div class="input-wrap">
+        <input type="text" id="auth-email" placeholder="you@email.com" value="${email}">
+        ${isSignup ? fieldCheck(emailFormatOk && emailStatus === "available") : ''}
+      </div>
+      ${isSignup && email ? (
+        !emailFormatOk ? `<div class="invalid-msg">Enter a valid email address</div>` :
+        emailStatus === "checking" ? `<div class="valid-msg" style="color:var(--slate);">Checking…</div>` :
+        emailStatus === "taken" ? `<div class="invalid-msg">An account with this email already exists</div>` :
+        emailStatus === "available" ? `<div class="valid-msg">✓ Email available</div>` : ''
+      ) : ''}
+
+      <div class="field-label">Password</div>
+      <div class="input-wrap">
+        <input type="${sub.showPassword ? 'text' : 'password'}" id="auth-password" placeholder="At least 8 characters" value="${password}">
+        <button type="button" class="eye-toggle-input" data-toggle-pw="password">${sub.showPassword ? '&#128065;' : '&#128064;'}</button>
+      </div>
+
+      ${isSignup ? `
+        <div class="field-label">Confirm Password</div>
+        <div class="input-wrap">
+          <input type="${sub.showConfirm ? 'text' : 'password'}" id="auth-confirm" placeholder="Re-enter password" value="${confirm}">
+          <button type="button" class="eye-toggle-input" data-toggle-pw="confirm">${sub.showConfirm ? '&#128065;' : '&#128064;'}</button>
+        </div>
+        ${confirm ? (confirmOk ? `<div class="valid-msg">✓ Passwords match</div>` : `<div class="invalid-msg">Passwords don't match</div>`) : ''}
+
+        <label class="terms-row">
+          <input type="checkbox" id="auth-terms" ${sub.termsAccepted ? 'checked' : ''}>
+          <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--blue-dark); font-weight:700;">Terms and Conditions</a> and <a href="privacy.html" target="_blank" style="color:var(--blue-dark); font-weight:700;">Privacy Policy</a></span>
+        </label>
+      ` : ''}
+
+      ${authError ? `<div class="invalid-msg" style="margin-top:12px;">${authError}</div>` : ''}
+      <button class="primary-btn" id="btn-auth-submit" style="margin-top:20px;" ${canSubmit ? '' : 'disabled'}>${isSignup ? "Sign Up" : "Log in"}</button>
+
+      <div class="switch-link">
+        ${isSignup ? `Already have an account? <a data-auth-mode="login">Log in</a>` : `New here? <a data-auth-mode="signup">Create an account</a>`}
+      </div>
+
+      ${!API_BASE_URL ? `<div class="empty-state" style="text-align:left; padding:14px 0 6px;">Running in local demo mode — accounts made here only exist in this browser until the backend is connected.</div>` : ''}
+    </div>
+  `;
+}
+
+function renderHome(){
+  const recent = state.transactions.slice(0,4);
+  const notification = siteSettings.siteNotification;
+  const dismissedNotification = dismissedBannerText === notification;
+  return `
+    ${notification && !dismissedNotification ? `
+    <div class="site-banner" id="site-banner">
+      <div class="site-banner-text">&#128226; ${notification}</div>
+      <button class="site-banner-close" id="btn-dismiss-banner" aria-label="Dismiss">&times;</button>
+    </div>` : ''}
+    <div class="greet-row">
+      <div class="greet-text">
+        <div class="hi">${greetingWord()} &#128075;</div>
+        <h1>Borno Data</h1>
+      </div>
+      <button class="avatar-btn" data-nav="me" aria-label="Account">&#128100;</button>
+    </div>
+
+    <div class="balance-card">
+      <div class="balance-label">
+        Balance
+        <button class="eye-btn" data-toggle-balance aria-label="Toggle balance">${showBalance ? "&#128065;" : "&#128064;"}</button>
+      </div>
+      <div class="balance-row">
+        <div class="balance-amount mono">${showBalance ? naira(state.balance) : "₦ • • • •"}</div>
+      </div>
+      <div class="account-row">
+        <div class="acct-info">
+          Borno Data Wallet · Bank transfer
+          <div class="acct-number mono">${state.virtualAccount || "Pending setup"}</div>
+        </div>
+        <button class="copy-btn" data-copy-account aria-label="Copy account number">&#128203;</button>
+      </div>
+      <div class="cashback-row">
+        <div>Cashback: <span class="mono" style="font-weight:700;">${naira(state.cashbackBalance || 0)}</span></div>
+        <button class="withdraw-pill" data-withdraw="cashback" ${(state.cashbackBalance||0) <= 0 ? 'disabled' : ''}>&#10132; Withdraw</button>
+      </div>
+      <div class="btn-row">
+        <button class="pill-btn primary" data-open-fund>&#10133; Add money</button>
+        <button class="pill-btn secondary" data-nav="referral">&#128101; My Referral</button>
+      </div>
+    </div>
+
+    <div class="section-title">Services</div>
+    <div class="services-grid">
+      <div class="service-tile" data-nav="data"><div class="ic">&#128246;</div><span>Data</span></div>
+      <div class="service-tile" data-nav="airtime"><div class="ic">&#128241;</div><span>Airtime</span></div>
+      <div class="service-tile" data-nav="bills"><div class="ic">&#128161;</div><span>Electricity</span></div>
+      <div class="service-tile" data-nav="tv"><div class="ic">&#128250;</div><span>Cable TV</span></div>
+      <div class="service-tile" data-nav="exam"><div class="ic">&#127891;</div><span>Exam pin</span></div>
+      <div class="service-tile" data-nav="sms"><div class="ic">&#128172;</div><span>Bulk SMS</span></div>
+      <div class="service-tile" data-nav="recharge"><div class="ic">&#127991;</div><span>Recharge Pin</span></div>
+      <div class="service-tile" data-nav="a2c"><div class="ic">&#128176;</div><span>Airtime to cash</span></div>
+    </div>
+
+    <div class="section-title">Recent activity</div>
+    ${recent.length === 0 ? `<div class="empty-state">No transactions yet.<br>Your activity will show up here.</div>` : recent.map(txRow).join("")}
+  `;
+}
+
+function renderSupport(){
+  const categories = [
+    ["Data & Airtime Support", "Help with data, airtime, or delivery issues", "#2F5FDB", "D&A"],
+    ["Payment & Billing Support", "Wallet funding, transactions, refunds", "#7B4FDB", "P&B"],
+    ["Account & Wallet Support", "Login, PIN, and account questions", "#1C9D6B", "A&W"],
+    ["Technical & Network Support", "App issues, bugs, or errors", "#D0422B", "T&N"],
+    ["General Enquiries", "Anything else", "#C9821A", "GE"],
+  ];
+  return `
+    <div class="section-title" style="margin-top:4px;">Chat with an agent</div>
+    ${categories.map(([title, sub, color, initials]) => `
+      <div class="tx-row">
+        <div style="width:42px;height:42px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${initials}</div>
+        <div class="tx-mid">
+          <div class="tx-title">${title}</div>
+          <div class="tx-sub">${sub}</div>
+        </div>
+        <button class="chat-pill" data-whatsapp-support>Chat</button>
+      </div>`).join("")}
+
+    <div class="section-title">More</div>
+    <div class="tx-row" style="cursor:pointer;" data-whatsapp-channel>
+      <div class="tx-icon" style="background:#E9EFFC;color:var(--blue-dark);">&#128226;</div>
+      <div class="tx-mid">
+        <div class="tx-title">Join our WhatsApp Channel</div>
+        <div class="tx-sub">Updates, offers, and announcements</div>
+      </div>
+    </div>
+    <div class="tx-row">
+      <div class="tx-icon" style="background:#FFF3E0;color:#C9821A;">&#9993;</div>
+      <div class="tx-mid">
+        <div class="tx-title">Email support</div>
+        <div class="tx-sub">support@bornodata.com</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderMe(){
+  const tier = state.tier || "user";
+  const dailyLimit = state.dailyLimit || 15000;
+  const dailySpent = state.dailySpent || 0;
+  const tierUpgradeCost = state.tierUpgradeCost || 1000;
+  const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+  const remaining = Math.max(0, dailyLimit - dailySpent);
+  const pct = Math.min(100, Math.round((dailySpent / dailyLimit) * 100));
+  return `
+    <div class="section-title" style="margin-top:4px;">Account</div>
+    <div class="tx-row">
+      <div class="tx-icon" style="background:#E9EFFC;color:var(--blue-dark);">&#128100;</div>
+      <div class="tx-mid">
+        <div class="tx-title">${session.fullName || session.email}</div>
+        <div class="tx-sub">${session.email}</div>
+      </div>
+    </div>
+    <div class="tx-row">
+      <div class="tx-icon" style="background:#FCE9E6;color:#B23A2E;">&#128274;</div>
+      <div class="tx-mid">
+        <div class="tx-title">Wallet ID</div>
+        <div class="tx-sub">${state.virtualAccount || "Pending setup"}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Account tier</div>
+    <div class="balance-card" style="padding:18px 20px;">
+      <div class="balance-label">Current tier</div>
+      <div class="balance-amount mono" style="font-size:22px;">${tierLabel}</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:10px;">
+        ${naira(dailySpent)} of ${naira(dailyLimit)} used today (${naira(remaining)} left)
+      </div>
+      <div style="background:rgba(255,255,255,0.2); border-radius:6px; height:6px; margin-top:8px; overflow:hidden;">
+        <div style="background:#fff; height:100%; width:${pct}%;"></div>
+      </div>
+    </div>
+    ${tier === "user" ? `
+      <div class="services-grid" style="grid-template-columns:repeat(2,1fr); margin-top:10px;">
+        <div class="service-tile" data-upgrade-tier="agent"><div class="ic">&#128188;</div><span>Become Agent</span></div>
+        <div class="service-tile" data-upgrade-tier="vendor"><div class="ic">&#127970;</div><span>Become Vendor</span></div>
+      </div>
+      <div class="empty-state" style="text-align:left; padding:14px 4px;">
+        Upgrading costs ${naira(tierUpgradeCost)} once, and raises your daily purchase limit to ${naira(100000)}.
+      </div>
+    ` : ''}
+
+    <div class="section-title">Settings</div>
+    <div class="tx-row" style="cursor:pointer;" data-change-pin>
+      <div class="tx-icon" style="background:#E9EFFC;color:var(--blue-dark);">&#128274;</div>
+      <div class="tx-mid">
+        <div class="tx-title">${state.hasTransactionPin ? "Change" : "Set"} transaction PIN</div>
+        <div class="tx-sub">${state.hasTransactionPin ? "PIN is set" : "Not set yet"}</div>
+      </div>
+    </div>
+    ${biometricSupported ? `
+    <div class="tx-row" style="cursor:pointer;" data-toggle-biometric>
+      <div class="tx-icon" style="background:#E6F6EE;color:#1C9D6B;">&#129508;</div>
+      <div class="tx-mid">
+        <div class="tx-title">Fingerprint unlock</div>
+        <div class="tx-sub">${biometricEnabledCache ? "On for this device" : "Off"}</div>
+      </div>
+      <input type="checkbox" ${biometricEnabledCache ? "checked" : ""} style="pointer-events:none;">
+    </div>` : ''}
+    <div class="tx-row" style="cursor:pointer;" data-logout>
+      <div class="tx-icon" style="background:#FCE9E6;color:var(--coral);">&#10162;</div>
+      <div class="tx-mid">
+        <div class="tx-title">Log out</div>
+        <div class="tx-sub">Sign out of this device</div>
+      </div>
+    </div>
+    ${!API_BASE_URL
+      ? `<div class="empty-state" style="text-align:left; padding:20px 4px;">Running in local demo mode — this account only exists in this browser until the backend is connected.</div>`
+      : `<div class="empty-state" style="text-align:left; padding:20px 4px;">Your wallet and account are real and saved on the server. Your transaction PIN is still stored only on this device — it won't follow you to a different phone yet.</div>`
+    }
+  `;
+}
+
+function txIconFor(type){
+  const map = {
+    mtn:["M","#FFCB05","#0F1B2B"], airtel:["A","#E4002B","#fff"], glo:["G","#77B92E","#fff"], "9mobile":["9","#00A651","#fff"],
+    dstv:["D","#0C3B6E","#fff"], gotv:["G","#00953B","#fff"], startimes:["S","#E4032E","#fff"],
+    electricity:["&#9889;","#FCE9E6","#1B3E9C"], fund:["+","#E6F6EE","#1C9D6B"],
+    exam:["&#127891;","#EDEBFC","#5B4AC9"], airtime2cash:["&#128176;","#E6F6EE","#1C9D6B"],
+    sms:["&#128172;","#E9EFFC","#2F5FDB"], recharge:["&#127991;","#FFF3E0","#C9821A"],
+    commission:["&#128176;","#E6F6EE","#1C9D6B"], cashback:["&#127942;","#FFF3E0","#C9821A"]
+  };
+  const m = map[type] || ["•","#EEE","#333"];
+  return `<div class="tx-icon" style="background:${m[1]};color:${m[2]};">${m[0]}</div>`;
+}
+
+function formatTxDate(iso){
+  try{
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"}) + " · " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  }catch(e){ return ""; }
+}
+
+function txRow(tx){
+  const amt = Number(tx.amount);
+  const neg = amt < 0;
+  return `
+    <div class="tx-row" style="cursor:pointer;" data-tx-id="${tx.id}">
+      ${txIconFor(tx.type)}
+      <div class="tx-mid">
+        <div class="tx-title">${tx.title}</div>
+        <div class="tx-sub">${tx.subtitle} · ${formatTxDate(tx.date)}</div>
+      </div>
+      <div class="tx-amt ${neg?'neg':'pos'} mono">${neg?'-':'+'}${naira(Math.abs(amt))}</div>
+    </div>`;
+}
+
+const NETWORK_COLOR_MAP = {
+  MTN: {color:"#FFCB05", text:"#0F1B2B"},
+  AIRTEL: {color:"#E4002B", text:"#FFFFFF"},
+  GLO: {color:"#77B92E", text:"#FFFFFF"},
+  "9MOBILE": {color:"#00A651", text:"#FFFFFF"},
+};
+
+// Fetches real, current data plans (with real network IDs) from the
+// backend, which proxies Elhassandatalink directly — no more guessed
+// network IDs or stale pricing. Cached in `sub` so switching screens
+// doesn't re-fetch every time; call again after clearing sub.dataPlans
+// to force a retry.
+let dataPlansLoadPromise = null;
+async function loadDataPlans(){
+  if(dataPlansLoadPromise) return dataPlansLoadPromise;
+  sub.dataPlansLoading = true;
+  dataPlansLoadPromise = (async () => {
+    try{
+      const raw = await apiRequest("/api/data/plans");
+      sub.dataPlans = (raw.networks || []).map(n => {
+        const netName = (n.name || "").toUpperCase();
+        const style = NETWORK_COLOR_MAP[netName] || {color:"#333333", text:"#FFFFFF"};
+        return { id: String(n.networkId), networkId: n.networkId, name: n.name, color: style.color, text: style.text, plans: n.plans || [] };
+      });
+      sub.dataPlansError = null;
+    }catch(e){
+      sub.dataPlansError = e.message || "Could not load data plans";
+    }
+    sub.dataPlansLoading = false;
+    dataPlansLoadPromise = null;
+    render();
+  })();
+  return dataPlansLoadPromise;
+}
+
+function renderDataCategory(){
+  if(sub.dataPlansError){
+    return `<div class="empty-state" style="padding:40px 16px; text-align:center;">Could not load data plans right now.<br><span style="font-size:11.5px;">${sub.dataPlansError}</span></div>
+      <button class="primary-btn" id="btn-retry-plans">Try again</button>`;
+  }
+  if(!sub.dataPlans){
+    if(!sub.dataPlansLoading) loadDataPlans();
+    return `<div class="loading-wrap"><div class="spinner"></div>Loading data plans…</div>`;
+  }
+  const networks = sub.dataPlans;
+  const selectedProvider = networks.find(n => n.id === sub.providerId);
+
+  let html = `<div class="section-title" style="margin-top:4px;">Choose network</div>
+    <div class="provider-grid">
+      ${networks.map(p => `
+        <div class="provider-card ${sub.providerId===p.id?'selected':''}" style="background:${p.color};color:${p.text};" data-provider="${p.id}" data-kind="data">
+          ${p.name}
+        </div>`).join("")}
+    </div>`;
+
+  if(selectedProvider){
+    const allTypesInNetwork = [...new Set(selectedProvider.plans.map(pl => pl.planType || "SME"))];
+    // Preserve a sensible order (SME first, matching TrueData) rather than
+    // whatever order the plans happened to come back in.
+    const typeOrder = ["SME", "SME2", "GIFTING", "CORPORATE"];
+    const availableTypes = typeOrder.filter(t => allTypesInNetwork.includes(t));
+    if(!sub.dataPlanType || !availableTypes.includes(sub.dataPlanType)) sub.dataPlanType = availableTypes[0];
+    const visiblePlans = selectedProvider.plans.filter(pl => (pl.planType || "SME") === sub.dataPlanType);
+
+    html += `<div class="field-label">Phone number</div>
+      <input type="tel" id="input-target" placeholder="080X XXX XXXX" value="${sub.target||''}" maxlength="16">`;
+
+    if(availableTypes.length > 1){
+      html += `<div class="field-label">Plan Type</div>
+      <div class="pill-toggle-row">
+        ${availableTypes.map(t => `<button class="pill-toggle ${sub.dataPlanType===t?'selected':''}" data-data-plan-type="${t}">${t}</button>`).join("")}
+      </div>`;
+    }
+
+    html += `<div class="field-label">Choose data plan</div>
+      <div class="plan-list">
+        ${visiblePlans.map(pl => `
+          <div class="plan-row ${sub.planId===pl.id?'selected':''}" data-plan="${pl.id}">
+            <div>
+              <div class="plan-name">${pl.name}</div>
+              <div class="plan-sub">${pl.sub}</div>
+            </div>
+            <div class="plan-price mono">${naira(pl.price)}</div>
+          </div>`).join("")}
+        ${visiblePlans.length === 0 ? `<div class="empty-state">No ${sub.dataPlanType} plans available for ${selectedProvider.name} right now.</div>` : ''}
+      </div>
+      <button class="primary-btn" id="btn-continue" ${!(sub.planId) ? 'disabled' : ''}>Continue</button>`;
+  }
+  return html;
+}
+
+function renderCategory(kind){
+  const list = kind === "data" ? NETWORKS : TV;
+  const selectedProvider = list.find(p => p.id === sub.providerId);
+  const label = kind === "data" ? "Choose network" : "Choose provider";
+
+  let html = `<div class="section-title" style="margin-top:4px;">${label}</div>
+    <div class="provider-grid">
+      ${list.map(p => `
+        <div class="provider-card ${sub.providerId===p.id?'selected':''}" style="background:${p.color};color:${p.text};" data-provider="${p.id}" data-kind="${kind}">
+          ${p.name}
+        </div>`).join("")}
+    </div>`;
+
+  if(selectedProvider){
+    html += `<div class="field-label">${kind==='data' ? 'Phone number' : 'Smartcard / IUC number'}</div>
+      <input type="tel" id="input-target" placeholder="${kind==='data' ? '080X XXX XXXX' : 'e.g. 7041234567'}" value="${sub.target||''}" maxlength="16">
+      <div class="field-label">${kind==='data' ? 'Choose data plan' : 'Choose package'}</div>
+      <div class="plan-list">
+        ${selectedProvider.plans.map(pl => `
+          <div class="plan-row ${sub.planId===pl.id?'selected':''}" data-plan="${pl.id}">
+            <div>
+              <div class="plan-name">${pl.name}</div>
+              <div class="plan-sub">${pl.sub}</div>
+            </div>
+            <div class="plan-price mono">${naira(pl.price)}</div>
+          </div>`).join("")}
+      </div>
+      <button class="primary-btn" id="btn-continue" ${!(sub.planId) ? 'disabled' : ''}>
+        Continue
+      </button>`;
+  }
+  return html;
+}
+
+function renderBills(){
+  return `
+    <div class="section-title" style="margin-top:4px;">Electricity provider</div>
+    <div class="disco-list">
+      ${DISCOS.map(d => `<div class="disco-row ${sub.disco===d?'selected':''}" data-disco="${d}">${d}</div>`).join("")}
+    </div>
+    ${sub.disco ? `
+      <div class="field-label">Meter number</div>
+      <input type="text" id="input-meter" placeholder="e.g. 04512278901" value="${sub.meter||''}">
+      <div class="field-label">Amount</div>
+      <input type="number" id="input-amount" placeholder="Enter amount" value="${sub.amount||''}">
+      <button class="primary-btn" id="btn-bill-continue">Continue</button>
+    ` : ''}
+  `;
+}
+
+const AIRTIME_TYPES = [
+  { id: "VTU", label: "VTU" },
+  { id: "SHARE_AND_SELL", label: "Share & Sell" },
+  { id: "MOMO", label: "MOMO" }, // not yet confirmed to work with Legitdataway — included for the toggle, may fail until confirmed
+];
+
+function renderAirtime(){
+  const provider = NETWORKS.find(p => p.id === sub.providerId);
+  sub.airtimeType = sub.airtimeType || "VTU";
+  let html = `<div class="section-title" style="margin-top:4px;">Choose network</div>
+    <div class="provider-grid">
+      ${NETWORKS.map(p => `
+        <div class="provider-card ${sub.providerId===p.id?'selected':''}" style="background:${p.color};color:${p.text};" data-provider="${p.id}" data-kind="airtime">
+          ${p.name}
+        </div>`).join("")}
+    </div>`;
+
+  if(provider){
+    html += `<div class="field-label">Phone number</div>
+      <input type="tel" id="input-target" placeholder="080X XXX XXXX" value="${sub.target||''}" maxlength="16">
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="input-disable-validator" ${sub.disableValidator ? 'checked' : ''}>
+        Disable number validator (for ported numbers)
+      </label>
+
+      <div class="field-label">Airtime Type</div>
+      <div class="pill-toggle-row">
+        ${AIRTIME_TYPES.map(t => `<button class="pill-toggle ${sub.airtimeType===t.id?'selected':''}" data-airtime-type="${t.id}">${t.label}</button>`).join("")}
+      </div>
+
+      <div class="field-label">Quick Amount</div>
+      <div class="provider-grid" style="grid-template-columns:repeat(3,1fr);">
+        ${AIRTIME_AMOUNTS.map(a => `<div class="plan-row ${Number(sub.amount)===a?'selected':''}" data-airtime-amt="${a}" style="justify-content:center;"><span class="plan-price mono">${naira(a)}</span></div>`).join("")}
+      </div>
+      <div class="field-label">Or enter a custom amount</div>
+      <input type="number" id="input-custom-airtime" placeholder="Enter amount" value="${sub.customAmount||''}">
+      <button class="primary-btn" id="btn-airtime-continue" ${(!sub.target || !(sub.amount||sub.customAmount)) ? 'disabled' : ''}>Continue</button>`;
+  }
+  return html;
+}
+
+function renderExam(){
+  const chosen = EXAMS.find(e => e.id === sub.examId);
+  let html = `<div class="section-title" style="margin-top:4px;">Choose exam body</div>
+    <div class="plan-list">
+      ${EXAMS.map(e => `
+        <div class="plan-row ${sub.examId===e.id?'selected':''}" data-exam="${e.id}">
+          <div><div class="plan-name">${e.name}</div><div class="plan-sub">${e.sub}</div></div>
+          <div class="plan-price mono">${naira(e.price)}</div>
+        </div>`).join("")}
+    </div>`;
+
+  if(chosen){
+    const qty = Number(sub.qty || 1);
+    html += `<div class="field-label">Number of pins</div>
+      <input type="number" id="input-qty" min="1" max="10" value="${qty}">
+      <div class="field-label">Total</div>
+      <input type="text" value="${naira(chosen.price * qty)}" disabled style="color:var(--slate);">
+      <button class="primary-btn" id="btn-exam-continue">Continue</button>`;
+  }
+  return html;
+}
+
+function renderA2C(){
+  const provider = NETWORKS.find(p => p.id === sub.providerId);
+  let html = `<div class="section-title" style="margin-top:4px;">Choose network</div>
+    <div class="provider-grid">
+      ${NETWORKS.map(p => `
+        <div class="provider-card ${sub.providerId===p.id?'selected':''}" style="background:${p.color};color:${p.text};" data-provider="${p.id}" data-kind="a2c">
+          ${p.name}
+        </div>`).join("")}
+    </div>`;
+
+  if(provider){
+    const rate = A2C_RATES[provider.id] || 0.8;
+    const amt = Number(sub.a2cAmount || 0);
+    const cash = Math.round(amt * rate);
+    html += `<div class="field-label">Airtime amount you're converting</div>
+      <input type="number" id="input-a2c-amount" placeholder="Enter amount" value="${sub.a2cAmount||''}">
+      <div class="field-label">You'll receive (${Math.round(rate*100)}% rate)</div>
+      <input type="text" value="${naira(cash)}" disabled style="color:var(--emerald); font-weight:600;">
+      <button class="primary-btn" id="btn-a2c-continue" ${amt <= 0 ? 'disabled' : ''}>Continue</button>
+      <div class="empty-state" style="text-align:left; padding:16px 4px 0;">Rates and delivery are simulated until IB Global is connected — this won't move real airtime yet.</div>`;
+  }
+  return html;
+}
+
+function renderReferral(){
+  const link = "https://bornodata.com/app.html?ref=" + state.referralCode;
+  return `
+    <div class="balance-card" style="padding:22px 20px;">
+      <div class="balance-label">Your referral code</div>
+      <div class="balance-amount mono" style="font-size:24px;">${state.referralCode}</div>
+      <div class="account-row">
+        <div class="acct-info">Share link<div class="acct-number mono" style="font-size:12px; word-break:break-all;">${link}</div></div>
+        <button class="copy-btn" data-copy-referral aria-label="Copy referral link">&#128203;</button>
+      </div>
+      <div class="cashback-row">
+        <div>Commission balance: <span class="mono" style="font-weight:700;">${naira(state.commissionBalance || 0)}</span></div>
+        <button class="withdraw-pill" data-withdraw="commission" ${(state.commissionBalance||0) <= 0 ? 'disabled' : ''}>&#10132; Withdraw</button>
+      </div>
+      <div class="btn-row">
+        <button class="pill-btn primary" data-whatsapp-referral>&#128172; Share on WhatsApp</button>
+      </div>
+    </div>
+
+    <div class="section-title">Your stats</div>
+    <div class="services-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="service-tile" style="cursor:default;"><div class="ic">&#128101;</div><span>${state.referralCount || 0} referrals</span></div>
+      <div class="service-tile" style="cursor:default;"><div class="ic">&#128176;</div><span>${naira(state.referralEarnings || 0)} earned total</span></div>
+    </div>
+
+    <div class="section-title">Commission structure</div>
+    <div class="balance-card" style="background:linear-gradient(135deg, #4A7CF0 0%, var(--blue) 55%, var(--blue-dark) 100%); padding:20px;">
+      <div class="balance-amount mono" style="font-size:26px;">2%</div>
+      <div style="font-size:12.5px; color:rgba(255,255,255,0.85); margin-top:2px;">Commission on every purchase your referrals make</div>
+      <div style="font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:10px; font-weight:600;">Applies forever — no time limit</div>
+    </div>
+    <div class="empty-state" style="text-align:left; padding:16px 4px;">
+      When someone you referred buys data, airtime, cable TV, or any other service, you automatically earn 2% of what they spent, credited straight to your Commission balance above.
+    </div>
+  `;
+}
+
+function renderBulkSMS(){
+  const count = (sub.smsRecipients || "").split(/[\n,]+/).map(s => s.trim()).filter(Boolean).length;
+  const total = count * SMS_UNIT_PRICE;
+  return `
+    <div class="section-title" style="margin-top:4px;">Recipients</div>
+    <div class="field-label" style="margin-top:0;">Phone numbers (one per line, or comma-separated)</div>
+    <textarea id="input-sms-recipients" rows="4" placeholder="080X XXX XXXX, 080X XXX XXXX" style="width:100%; padding:13px 14px; border-radius:10px; border:1.5px solid var(--line); font-size:14px; font-family:'IBM Plex Mono',monospace; background:var(--card); color:var(--ink);">${sub.smsRecipients||''}</textarea>
+    <div class="field-label">Message</div>
+    <textarea id="input-sms-message" rows="3" placeholder="Type your message" style="width:100%; padding:13px 14px; border-radius:10px; border:1.5px solid var(--line); font-size:14px; font-family:'Inter',sans-serif; background:var(--card); color:var(--ink);">${sub.smsMessage||''}</textarea>
+    <div class="field-label">Cost</div>
+    <input type="text" value="${count} recipient${count===1?'':'s'} × ${naira(SMS_UNIT_PRICE)} = ${naira(total)}" disabled style="color:var(--slate);">
+    <button class="primary-btn" id="btn-sms-continue" ${(count===0 || !sub.smsMessage) ? 'disabled' : ''}>Send</button>
+  `;
+}
+
+function renderRecharge(){
+  const provider = NETWORKS.find(p => p.id === sub.providerId);
+  let html = `<div class="section-title" style="margin-top:4px;">Choose network</div>
+    <div class="provider-grid">
+      ${NETWORKS.map(p => `
+        <div class="provider-card ${sub.providerId===p.id?'selected':''}" style="background:${p.color};color:${p.text};" data-provider="${p.id}" data-kind="recharge">
+          ${p.name}
+        </div>`).join("")}
+    </div>`;
+
+  if(provider){
+    const qty = Number(sub.qty || 1);
+    const denom = Number(sub.denom || AIRTIME_AMOUNTS[0]);
+    html += `<div class="field-label">Denomination</div>
+      <div class="provider-grid" style="grid-template-columns:repeat(3,1fr);">
+        ${AIRTIME_AMOUNTS.map(a => `<div class="plan-row ${denom===a?'selected':''}" data-recharge-denom="${a}" style="justify-content:center;"><span class="plan-price mono">${naira(a)}</span></div>`).join("")}
+      </div>
+      <div class="field-label">Quantity</div>
+      <input type="number" id="input-recharge-qty" min="1" max="20" value="${qty}">
+      <div class="field-label">Total</div>
+      <input type="text" value="${naira(denom * qty)}" disabled style="color:var(--slate);">
+      <button class="primary-btn" id="btn-recharge-continue">Continue</button>`;
+  }
+  return html;
+}
+
+function renderHistory(){
+  if(state.transactions.length === 0){
+    return `<div class="empty-state" style="margin-top:60px;">No transactions yet.<br>Everything you buy will be logged here.</div>`;
+  }
+  return `<div class="section-title" style="margin-top:4px;">All transactions</div>` + state.transactions.map(txRow).join("");
+}
+
+/* ---------- MODALS ---------- */
+
+function fundBankModalHtml(virtualAccount){
+  return `
+    <div class="modal-handle"></div>
+    <h3 style="margin-bottom:10px;">Fund wallet</h3>
+    <div style="font-size:13px; color:var(--slate); margin-bottom:14px;">Transfer any amount to this account — your wallet updates automatically once it lands.</div>
+    <div class="account-row" style="background:#F0F3FA; margin:0;">
+      <div class="acct-info" style="color:var(--slate);">Bank transfer details<div class="acct-number mono" style="color:var(--ink);">${virtualAccount}</div></div>
+    </div>
+    <button class="primary-btn confirm" id="btn-fund-done" style="margin-top:18px;">Done</button>
+  `;
+}
+
+function fundDevModalHtml(){
+  const amounts = [1000,2000,5000,10000];
+  return `
+    <div class="modal-handle"></div>
+    <h3 style="margin-bottom:6px;">Fund wallet</h3>
+    <div style="font-size:12.5px; color:var(--slate); margin-bottom:14px;">Billstack isn't connected yet — this adds test funds so you can try the app. No real money moves.</div>
+    <div class="field-label" style="margin-top:0;">Choose an amount</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:6px;">
+      ${amounts.map(a => `<div class="plan-row" data-fund-amt="${a}"><div class="plan-name mono">${naira(a)}</div></div>`).join("")}
+    </div>
+    <div class="field-label">Or enter custom amount</div>
+    <input type="number" id="custom-fund" placeholder="Enter amount">
+    <button class="primary-btn confirm" id="btn-fund-confirm">Add test funds</button>
+  `;
+}
+
+function confirmModalHtml({title, lines, amount, onConfirmLabel}){
+  return `
+    <div class="modal-handle"></div>
+    <h3 style="margin-bottom:14px;">${title}</h3>
+    ${lines.map(l => `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;">
+      <span style="color:var(--slate);">${l[0]}</span><span style="font-weight:600;" class="${l[2]?'mono':''}">${l[1]}</span>
+    </div>`).join("")}
+    <button class="primary-btn confirm" id="btn-final-confirm">${onConfirmLabel || 'Confirm & pay'}</button>
+  `;
+}
+
+// Shown right after a successful purchase, and reopened when the person taps
+// a row in History — same markup either way, since a receipt should look
+// identical whether you're seeing it fresh or looking it back up later.
+function receiptModalHtml(tx){
+  const amt = Number(tx.amount);
+  const neg = amt < 0;
+  return `
+    <div class="modal-handle"></div>
+    <div style="text-align:center; margin-bottom:6px;">
+      <div style="font-size:40px; line-height:1;">&#9989;</div>
+      <h3 style="margin:10px 0 2px;">${neg ? 'Purchase Successful' : 'Payment Received'}</h3>
+      <div style="font-size:12.5px; color:var(--slate);">${formatTxDate(tx.date)}</div>
+    </div>
+    <div class="tx-amt ${neg?'neg':'pos'} mono" style="text-align:center; font-size:26px; margin:14px 0;">${neg?'-':'+'}${naira(Math.abs(amt))}</div>
+    <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;">
+      <span style="color:var(--slate);">Description</span><span style="font-weight:600; text-align:right; max-width:60%;">${tx.title}</span>
+    </div>
+    ${tx.subtitle ? `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;">
+      <span style="color:var(--slate);">Details</span><span style="font-weight:600; text-align:right; max-width:60%;">${tx.subtitle}</span>
+    </div>` : ''}
+    <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;">
+      <span style="color:var(--slate);">Status</span><span style="font-weight:600; color:${tx.status==='Successful'?'#1C9D6B':'#B23A2E'};">${tx.status || 'Successful'}</span>
+    </div>
+    ${tx.reference ? `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;">
+      <span style="color:var(--slate);">Reference</span><span style="font-weight:600;" class="mono">${tx.reference}</span>
+    </div>` : ''}
+    <div style="display:flex;justify-content:space-between;padding:9px 0;font-size:13.5px;">
+      <span style="color:var(--slate);">Transaction ID</span><span style="font-weight:600;" class="mono">#${tx.id}</span>
+    </div>
+    <button class="primary-btn confirm" id="btn-receipt-done" style="margin-top:18px;">Done</button>
+  `;
+}
+
+function showReceipt(tx){
+  if(!tx) return;
+  openModal(receiptModalHtml(tx));
+  const btn = document.getElementById("btn-receipt-done");
+  if(btn) btn.onclick = () => closeModal();
+}
+
+/* ---------- TRANSACTION PIN ---------- */
+
+function pinModalHtml({title, subtitle, buttonLabel, error}){
+  return `
+    <div class="modal-handle"></div>
+    <div style="text-align:center;">
+      <div style="font-size:30px;">&#128274;</div>
+      <h3 style="margin:10px 0 6px;">${title}</h3>
+      <div style="font-size:12.5px; color:var(--slate);">${subtitle}</div>
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="pin-input" class="pin-input" autocomplete="off">
+      ${error ? `<div class="invalid-msg" style="text-align:center; margin-top:8px;">${error}</div>` : ''}
+      <button class="primary-btn confirm" id="btn-pin-submit" style="margin-top:18px;" disabled>${buttonLabel}</button>
+    </div>
+  `;
+}
+
+function wirePinInput(onComplete){
+  const input = document.getElementById("pin-input");
+  const btn = document.getElementById("btn-pin-submit");
+  if(!input || !btn) return;
+  input.focus();
+  input.oninput = () => {
+    input.value = input.value.replace(/\D/g,"").slice(0,4);
+    btn.disabled = input.value.length !== 4;
+  };
+  btn.onclick = () => onComplete(input.value);
+}
+
+function startPinSetup(){
+  openModal(pinModalHtml({ title: state.hasTransactionPin ? "Change PIN" : "Secure Wallet", subtitle:"Set up a 4-digit PIN for transactions", buttonLabel:"Set Transaction PIN" }));
+  wirePinInput((value) => {
+    sub.pinFirst = value;
+    openModal(pinModalHtml({ title:"Confirm PIN", subtitle:"Re-enter your 4-digit PIN", buttonLabel:"Confirm PIN" }));
+    wirePinInput(async (confirmValue) => {
+      if(confirmValue === sub.pinFirst){
+        closeModal();
+        // Changing an existing PIN needs the old one too (checked server-side,
+        // same as change-password) — setting the first one ever doesn't.
+        const currentPin = state.hasTransactionPin ? await promptCurrentPinThen() : null;
+        if(state.hasTransactionPin && currentPin === null) return; // they cancelled
+        try{
+          await apiRequest("/api/auth/set-pin", { method: "POST", body: JSON.stringify({ pin: confirmValue, currentPin }) });
+          state.hasTransactionPin = true;
+          toast("✓ Transaction PIN set");
+          render();
+        }catch(e){
+          toast(e.message || "Could not set PIN");
+        }
+      } else {
+        toast("PINs didn't match — try again");
+        startPinSetup();
+      }
+    });
+  });
+}
+
+// Small helper used only when CHANGING an existing PIN — collects the
+// current PIN in its own short modal step, resolving to null if the person
+// backs out instead of entering one.
+function promptCurrentPinThen(){
+  return new Promise((resolve) => {
+    openModal(pinModalHtml({ title:"Confirm it's you", subtitle:"Enter your current PIN to continue", buttonLabel:"Continue" }));
+    wirePinInput((value) => { closeModal(); resolve(value); });
+  });
+}
+
+// Gate any purchase behind the transaction PIN, if one is set. The PIN
+// itself is never checked here in the browser — it's collected and handed
+// straight to purchaseFn, which sends it to the server as part of the same
+// request that actually charges the wallet. That's what makes this secure:
+// a hash comparison happening in the browser could be read or skipped
+// entirely by anyone poking at the page's code; a check the server itself
+// performs before moving any money cannot be.
+function requirePinThen(purchaseFn){
+  if(!state.hasTransactionPin){ purchaseFn(null); return; }
+
+  openModal(pinModalHtml({ title:"Enter PIN", subtitle:"Enter your transaction PIN to continue", buttonLabel:"Confirm" }));
+  wirePinInput((value) => {
+    closeModal();
+    purchaseFn(value);
+  });
+}
+
+/* ---------- EVENTS ---------- */
+
+function attachHandlers(){
+  const retryUnlockBtn = document.getElementById("btn-retry-unlock");
+  if(retryUnlockBtn) retryUnlockBtn.onclick = () => attemptBiometricUnlock();
+  const usePasswordBtn = document.getElementById("btn-use-password");
+  if(usePasswordBtn) usePasswordBtn.onclick = () => clearSession(); // safest fallback — a real, full re-login rather than a half-authenticated in-between state
+
+  document.querySelectorAll("[data-auth-mode]").forEach(el => {
+    el.onclick = () => {
+      authMode = el.getAttribute("data-auth-mode");
+      authError = "";
+      sub = {};
+      render();
+    };
+  });
+
+  const authName = document.getElementById("auth-name");
+  if(authName) authName.oninput = (e) => { sub.name = e.target.value; rerenderKeepingFocus(); };
+
+  const authPhone = document.getElementById("auth-phone");
+  if(authPhone) authPhone.oninput = (e) => { sub.phone = e.target.value.replace(/\D/g,"").slice(0,11); rerenderKeepingFocus(); };
+
+  const authEmail = document.getElementById("auth-email");
+  if(authEmail) authEmail.oninput = (e) => {
+    sub.email = e.target.value;
+    if(authMode === "signup" && isValidEmailFormat(sub.email)){
+      if(API_BASE_URL){
+        sub.emailStatus = "available"; // real uniqueness check happens server-side on submit
+      } else {
+        sub.emailStatus = "checking";
+        checkEmailAvailability(sub.email);
+      }
+    } else {
+      sub.emailStatus = null;
+    }
+    rerenderKeepingFocus();
+  };
+
+  const authPassword = document.getElementById("auth-password");
+  if(authPassword) authPassword.oninput = (e) => { sub.password = e.target.value; rerenderKeepingFocus(); };
+  const authConfirm = document.getElementById("auth-confirm");
+  if(authConfirm) authConfirm.oninput = (e) => { sub.confirmPassword = e.target.value; rerenderKeepingFocus(); };
+
+  document.querySelectorAll("[data-toggle-pw]").forEach(el => {
+    el.onclick = () => {
+      if(el.getAttribute("data-toggle-pw") === "password") sub.showPassword = !sub.showPassword;
+      else sub.showConfirm = !sub.showConfirm;
+      render();
+    };
+  });
+
+  const authTerms = document.getElementById("auth-terms");
+  if(authTerms) authTerms.onchange = (e) => { sub.termsAccepted = e.target.checked; render(); };
+
+  const authSubmit = document.getElementById("btn-auth-submit");
+  if(authSubmit) authSubmit.onclick = () => {
+    submitAuth({
+      email: (sub.email || "").trim(),
+      password: sub.password || "",
+      fullName: (sub.name || "").trim(),
+      phone: (sub.phone || "").trim(),
+    });
+  };
+
+  const logoutRow = document.querySelector("[data-logout]");
+  if(logoutRow) logoutRow.onclick = () => clearSession();
+
+  const changePinRow = document.querySelector("[data-change-pin]");
+  if(changePinRow) changePinRow.onclick = () => startPinSetup(); // handles both "set for the first time" and "change" internally now
+
+  const biometricToggleRow = document.querySelector("[data-toggle-biometric]");
+  if(biometricToggleRow) biometricToggleRow.onclick = () => {
+    if(biometricEnabledCache) disableBiometricLock();
+    else enableBiometricLock();
+  };
+
+  document.querySelectorAll("[data-upgrade-tier]").forEach(el => {
+    el.onclick = () => {
+      const tier = el.getAttribute("data-upgrade-tier");
+      const cost = state.tierUpgradeCost || 1000;
+      openModal(confirmModalHtml({
+        title: `Upgrade to ${tier.charAt(0).toUpperCase() + tier.slice(1)}`,
+        lines: [
+          ['New tier', tier.charAt(0).toUpperCase() + tier.slice(1)],
+          ['Daily limit becomes', naira(100000)],
+          ['One-time cost', naira(cost), true],
+        ],
+      }));
+      document.getElementById("btn-final-confirm").onclick = () => {
+        closeModal();
+        requirePinThen(async (pin) => {
+          const result = await purchase("/api/wallet/upgrade-tier", { tier, pin });
+          if(result){ toast("✓ Upgraded to " + tier.charAt(0).toUpperCase() + tier.slice(1)); goto("me"); }
+        });
+      };
+    };
+  });
+
+  document.querySelectorAll("[data-nav]").forEach(el => {
+    el.onclick = () => goto(el.getAttribute("data-nav"));
+  });
+
+  const toggleBtn = document.querySelector("[data-toggle-balance]");
+  if(toggleBtn) toggleBtn.onclick = () => { showBalance = !showBalance; render(); };
+
+  const dismissBannerBtn = document.getElementById("btn-dismiss-banner");
+  if(dismissBannerBtn) dismissBannerBtn.onclick = () => { dismissedBannerText = siteSettings.siteNotification; render(); };
+
+  const fundBtn = document.querySelector("[data-open-fund]");
+  if(fundBtn) fundBtn.onclick = async () => {
+    openModal(`<div class="modal-handle"></div><div class="loading-wrap" style="height:120px;"><div class="spinner"></div>Loading…</div>`);
+    try{
+      const data = await apiRequest("/api/wallet/fund-init", { method: "POST" });
+      openModal(fundBankModalHtml(data.virtualAccount));
+      document.getElementById("btn-fund-done").onclick = () => { closeModal(); loadState(false); };
+    }catch(e){
+      if(e.status === 503){
+        openModal(fundDevModalHtml());
+        attachModalFundHandlers();
+      } else {
+        closeModal();
+        toast(e.message || "Could not start funding");
+        console.error("Billstack fund-init error:", e.detail || e.message);
+      }
+    }
+  };
+
+  const copyBtn = document.querySelector("[data-copy-account]");
+  if(copyBtn) copyBtn.onclick = () => {
+    const text = state.virtualAccount || "";
+    if(navigator.clipboard && text){
+      navigator.clipboard.writeText(text).then(() => toast("✓ Copied " + text));
+    } else {
+      toast(text || "No account number yet");
+    }
+  };
+
+  document.querySelectorAll("[data-withdraw]").forEach(el => {
+    el.onclick = async () => {
+      const source = el.getAttribute("data-withdraw");
+      const result = await purchase("/api/wallet/withdraw", { source });
+      if(result) toast("✓ " + naira(result.amount) + " moved to your main balance");
+    };
+  });
+
+  document.querySelectorAll("[data-whatsapp-support]").forEach(el => {
+    el.onclick = () => window.open("https://wa.me/" + (siteSettings.whatsappSupport || "2348065389567"), "_blank");
+  });
+  const channelRow = document.querySelector("[data-whatsapp-channel]");
+  if(channelRow) channelRow.onclick = () => window.open(siteSettings.whatsappChannel || "https://whatsapp.com", "_blank");
+
+  document.querySelectorAll("[data-soon]").forEach(el => {
+    el.onclick = () => toast(el.getAttribute("data-soon") + " is coming soon");
+  });
+
+  // Tapping any row in History reopens the exact same receipt shown right
+  // after the purchase — using data already loaded in state.transactions,
+  // no extra request needed.
+  document.querySelectorAll("[data-tx-id]").forEach(el => {
+    el.onclick = () => {
+      const id = Number(el.getAttribute("data-tx-id"));
+      const tx = state.transactions.find(t => Number(t.id) === id);
+      if(tx) showReceipt(tx);
+    };
+  });
+
+  const fab = document.getElementById("support-fab");
+  if(fab) fab.onclick = () => window.open("https://wa.me/" + (siteSettings.whatsappSupport || "2348065389567"), "_blank");
+
+  const channelFab = document.getElementById("channel-fab");
+  if(channelFab) channelFab.onclick = () => window.open(siteSettings.whatsappChannel || "https://whatsapp.com", "_blank");
+
+  document.querySelectorAll("[data-provider]").forEach(el => {
+    el.onclick = () => {
+      sub.providerId = el.getAttribute("data-provider");
+      sub.planId = null;
+      sub.dataPlanType = null; // let renderDataCategory pick this network's first available type fresh
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-data-plan-type]").forEach(el => {
+    el.onclick = () => {
+      sub.dataPlanType = el.getAttribute("data-data-plan-type");
+      sub.planId = null; // previous selection may not exist in the new type's list
+      render();
+    };
+  });
+
+  const targetInput = document.getElementById("input-target");
+  if(targetInput) targetInput.oninput = (e) => { sub.target = e.target.value; };
+
+  document.querySelectorAll("[data-plan]").forEach(el => {
+    el.onclick = () => { sub.planId = el.getAttribute("data-plan"); render(); };
+  });
+
+  const continueBtn = document.getElementById("btn-continue");
+  if(continueBtn) continueBtn.onclick = () => {
+    const list = view === "data" ? sub.dataPlans : TV;
+    const provider = list.find(p => p.id === sub.providerId);
+    const plan = provider.plans.find(p => p.id === sub.planId);
+    const target = sub.target || "";
+    if(!target){ toast("Enter a " + (view==='data'?'phone number':'smartcard number') + " first"); return; }
+    openModal(confirmModalHtml({
+      title: "Confirm purchase",
+      lines: [
+        [view==='data'?'Network':'Provider', provider.name],
+        [view==='data'?'Phone number':'Smartcard number', target],
+        ['Plan', plan.name + " · " + plan.sub],
+        ['Amount', naira(plan.price), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const path = view === 'data' ? "/api/data/purchase" : "/api/tv/purchase";
+        const body = view === 'data'
+          ? { network: provider.networkId, networkName: provider.name, phone: target, planId: Number(plan.id), amount: plan.price, pin }
+          : { provider: provider.id, smartcard: target, planId: plan.id, amount: plan.price, pin };
+        const result = await purchase(path, body);
+        if(result){
+          const cashbackNote = view === 'data' ? " · +₦4 cashback" : "";
+          toast("✓ " + provider.name + " " + (view==='data'?'data':'subscription') + " purchased" + cashbackNote);
+          goto("home");
+          if(result.receipt) showReceipt(result.receipt);
+        }
+      });
+    };
+  };
+
+  const retryPlansBtn = document.getElementById("btn-retry-plans");
+  if(retryPlansBtn) retryPlansBtn.onclick = () => { sub.dataPlansError = null; sub.dataPlans = null; render(); };
+
+  document.querySelectorAll("[data-disco]").forEach(el => {
+    el.onclick = () => { sub.disco = el.getAttribute("data-disco"); render(); };
+  });
+  const meterInput = document.getElementById("input-meter");
+  if(meterInput) meterInput.oninput = (e) => sub.meter = e.target.value;
+  const amtInput = document.getElementById("input-amount");
+  if(amtInput) amtInput.oninput = (e) => sub.amount = e.target.value;
+
+  const billBtn = document.getElementById("btn-bill-continue");
+  if(billBtn) billBtn.onclick = () => {
+    const amount = Number(sub.amount);
+    if(!sub.meter){ toast("Enter your meter number"); return; }
+    if(!amount || amount <= 0){ toast("Enter a valid amount"); return; }
+    openModal(confirmModalHtml({
+      title: "Confirm bill payment",
+      lines: [
+        ['Provider', sub.disco],
+        ['Meter number', sub.meter],
+        ['Amount', naira(amount), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/bills/pay", { disco: sub.disco, meter: sub.meter, amount, pin });
+        if(result){ toast("✓ Electricity bill paid"); goto("home"); }
+      });
+    };
+  };
+
+  document.querySelectorAll("[data-airtime-type]").forEach(el => {
+    el.onclick = () => { sub.airtimeType = el.getAttribute("data-airtime-type"); render(); };
+  });
+  const validatorCheckbox = document.getElementById("input-disable-validator");
+  if(validatorCheckbox) validatorCheckbox.onchange = (e) => { sub.disableValidator = e.target.checked; };
+
+  document.querySelectorAll("[data-airtime-amt]").forEach(el => {
+    el.onclick = () => { sub.amount = el.getAttribute("data-airtime-amt"); sub.customAmount = ""; render(); };
+  });
+  const customAirtime = document.getElementById("input-custom-airtime");
+  if(customAirtime) customAirtime.oninput = (e) => {
+    // A full re-render here would fight the cursor on every keystroke —
+    // type="number" inputs can't have their cursor position restored after
+    // a rebuild (that browser API only works on text inputs), which is
+    // exactly what made typing an amount feel broken. Update state and the
+    // couple of visual bits that need to change (Continue button, clearing
+    // the quick-amount highlight) directly, without touching the DOM tree
+    // the input itself lives in.
+    sub.customAmount = e.target.value;
+    sub.amount = null;
+    document.querySelectorAll("[data-airtime-amt]").forEach(el => el.classList.remove("selected"));
+    const continueBtn = document.getElementById("btn-airtime-continue");
+    if(continueBtn) continueBtn.disabled = !(sub.target && (sub.amount || sub.customAmount));
+  };
+  const airtimeBtn = document.getElementById("btn-airtime-continue");
+  if(airtimeBtn) airtimeBtn.onclick = () => {
+    const provider = NETWORKS.find(p => p.id === sub.providerId);
+    const amount = Number(sub.amount || sub.customAmount);
+    const target = sub.target || "";
+    const airtimeType = sub.airtimeType || "VTU";
+    if(!target){ toast("Enter a phone number first"); return; }
+    if(!amount || amount <= 0){ toast("Enter a valid amount"); return; }
+    openModal(confirmModalHtml({
+      title: "Confirm airtime purchase",
+      lines: [
+        ['Network', provider.name],
+        ['Phone number', target],
+        ['Type', AIRTIME_TYPES.find(t => t.id === airtimeType)?.label || airtimeType],
+        ['Airtime amount', naira(amount), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/airtime/purchase", { network: provider.id, phone: target, amount, pin, planType: airtimeType, disableValidator: Boolean(sub.disableValidator) });
+        if(result){
+          toast("✓ Airtime sent to " + target + " · +₦4 cashback");
+          goto("home");
+          if(result.receipt) showReceipt(result.receipt);
+        }
+      });
+    };
+  };
+
+  document.querySelectorAll("[data-exam]").forEach(el => {
+    el.onclick = () => { sub.examId = el.getAttribute("data-exam"); sub.qty = sub.qty || 1; render(); };
+  });
+  const qtyInput = document.getElementById("input-qty");
+  if(qtyInput) qtyInput.oninput = (e) => { sub.qty = Math.max(1, Math.min(10, Number(e.target.value) || 1)); rerenderKeepingFocus(); };
+  const examBtn = document.getElementById("btn-exam-continue");
+  if(examBtn) examBtn.onclick = () => {
+    const exam = EXAMS.find(e => e.id === sub.examId);
+    const qty = Number(sub.qty || 1);
+    const total = exam.price * qty;
+    openModal(confirmModalHtml({
+      title: "Confirm exam pin purchase",
+      lines: [
+        ['Exam body', exam.name],
+        ['Quantity', String(qty)],
+        ['Total', naira(total), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/exam/purchase", { examName: exam.name, qty, amount: total, pin });
+        if(result){
+          const pins = (result.pins || []).join(", ");
+          openModal(`<div class="modal-handle"></div><h3 style="margin-bottom:10px;">Your pin${qty>1?'s':''}</h3>
+            <div class="empty-state" style="text-align:left; padding:10px 0;">${pins}</div>
+            <button class="primary-btn confirm" id="btn-close-pins">Done</button>`);
+          document.getElementById("btn-close-pins").onclick = () => { closeModal(); goto("home"); };
+        }
+      });
+    };
+  };
+
+  const a2cInput = document.getElementById("input-a2c-amount");
+  if(a2cInput) a2cInput.oninput = (e) => { sub.a2cAmount = e.target.value; rerenderKeepingFocus(); };
+  const a2cBtn = document.getElementById("btn-a2c-continue");
+  if(a2cBtn) a2cBtn.onclick = () => {
+    const provider = NETWORKS.find(p => p.id === sub.providerId);
+    const rate = A2C_RATES[provider.id] || 0.8;
+    const amount = Number(sub.a2cAmount || 0);
+    const cash = Math.round(amount * rate);
+    openModal(confirmModalHtml({
+      title: "Confirm conversion",
+      lines: [
+        ['Network', provider.name],
+        ['Airtime amount', naira(amount)],
+        ["You'll receive", naira(cash), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/airtime-to-cash", { network: provider.id, amount, pin });
+        if(result){ toast("✓ " + naira(result.cash) + " added to wallet"); goto("home"); }
+      });
+    };
+  };
+
+  const copyRefBtn = document.querySelector("[data-copy-referral]");
+  if(copyRefBtn) copyRefBtn.onclick = () => {
+    const link = "https://bornodata.com/app.html?ref=" + state.referralCode;
+    if(navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast("✓ Referral link copied"));
+    else toast(link);
+  };
+  const waRefBtn = document.querySelector("[data-whatsapp-referral]");
+  if(waRefBtn) waRefBtn.onclick = () => {
+    const link = "https://bornodata.com/app.html?ref=" + state.referralCode;
+    const text = encodeURIComponent("Buy cheap data, airtime & pay bills on Borno Data — use my link to sign up: " + link);
+    window.open("https://wa.me/?text=" + text, "_blank");
+  };
+
+  const smsRecipients = document.getElementById("input-sms-recipients");
+  if(smsRecipients) smsRecipients.oninput = (e) => { sub.smsRecipients = e.target.value; rerenderKeepingFocus(); };
+  const smsMessage = document.getElementById("input-sms-message");
+  if(smsMessage) smsMessage.oninput = (e) => { sub.smsMessage = e.target.value; rerenderKeepingFocus(); };
+  const smsBtn = document.getElementById("btn-sms-continue");
+  if(smsBtn) smsBtn.onclick = () => {
+    const count = (sub.smsRecipients || "").split(/[\n,]+/).map(s => s.trim()).filter(Boolean).length;
+    const total = count * SMS_UNIT_PRICE;
+    openModal(confirmModalHtml({
+      title: "Confirm bulk SMS",
+      lines: [
+        ['Recipients', String(count)],
+        ['Cost per SMS', naira(SMS_UNIT_PRICE)],
+        ['Total', naira(total), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/sms/send", { count, message: sub.smsMessage, amount: total, pin });
+        if(result){ toast("✓ Message sent to " + count + " number" + (count===1?'':'s')); sub={}; goto("home"); }
+      });
+    };
+  };
+
+  document.querySelectorAll("[data-recharge-denom]").forEach(el => {
+    el.onclick = () => { sub.denom = el.getAttribute("data-recharge-denom"); render(); };
+  });
+  const rechargeQty = document.getElementById("input-recharge-qty");
+  if(rechargeQty) rechargeQty.oninput = (e) => { sub.qty = Math.max(1, Math.min(20, Number(e.target.value) || 1)); rerenderKeepingFocus(); };
+  const rechargeBtn = document.getElementById("btn-recharge-continue");
+  if(rechargeBtn) rechargeBtn.onclick = () => {
+    const provider = NETWORKS.find(p => p.id === sub.providerId);
+    const denom = Number(sub.denom || AIRTIME_AMOUNTS[0]);
+    const qty = Number(sub.qty || 1);
+    const total = denom * qty;
+    openModal(confirmModalHtml({
+      title: "Confirm recharge pin purchase",
+      lines: [
+        ['Network', provider.name],
+        ['Denomination', naira(denom)],
+        ['Quantity', String(qty)],
+        ['Total', naira(total), true],
+      ],
+    }));
+    document.getElementById("btn-final-confirm").onclick = () => {
+      closeModal();
+      requirePinThen(async (pin) => {
+        const result = await purchase("/api/recharge/purchase", { network: provider.id, denom, qty, amount: total, pin });
+        if(result){
+          const pins = (result.pins || []).join(", ");
+          openModal(`<div class="modal-handle"></div><h3 style="margin-bottom:10px;">Your pin${qty>1?'s':''}</h3>
+            <div class="empty-state" style="text-align:left; padding:10px 0;">${pins}</div>
+            <button class="primary-btn confirm" id="btn-close-pins">Done</button>`);
+          document.getElementById("btn-close-pins").onclick = () => { closeModal(); goto("home"); };
+        }
+      });
+    };
+  };
+
+  document.getElementById("modal-overlay").onclick = (e) => {
+    if(e.target.id === "modal-overlay") closeModal();
+  };
+}
+
+function attachModalFundHandlers(){
+  document.querySelectorAll("[data-fund-amt]").forEach(el => {
+    el.onclick = async () => {
+      const amt = Number(el.getAttribute("data-fund-amt"));
+      closeModal();
+      const result = await purchase("/api/wallet/dev-fund", { amount: amt });
+      if(result) toast("✓ " + naira(amt) + " added to wallet");
+    };
+  });
+  document.getElementById("btn-fund-confirm").onclick = async () => {
+    const amt = Number(document.getElementById("custom-fund").value);
+    if(!amt || amt <= 0){ toast("Enter a valid amount"); return; }
+    closeModal();
+    const result = await purchase("/api/wallet/dev-fund", { amount: amt });
+    if(result) toast("✓ " + naira(amt) + " added to wallet");
+  };
+}
+
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("ref")){
+    incomingReferralCode = params.get("ref").trim().toUpperCase();
+    authMode = "signup";
+  } else if(params.get("mode") === "signup"){
+    authMode = "signup";
+  }
+  await loadSession();
+
+  if(!session){
+    render();
+    return;
+  }
+
+  // Paint instantly from whatever we last saw for this account, if
+  // anything — then quietly fetch the real current numbers behind it.
+  // Only a brand-new device with no cache yet sees a loading state at all.
+  let hadCache = false;
+  try{
+    state = JSON.parse((await window.storage.get(walletCacheKey(), false)).value);
+    view = "home";
+    hadCache = true;
+    render();
+  }catch(e){}
+
+  await loadState(!hadCache);
+  loadSiteSettings();
+})();
+</script>
+</body>
+</html>
