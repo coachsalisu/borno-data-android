@@ -41,6 +41,11 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Bump Android target SDK to 36
+        run: |
+          sed -i 's/compileSdkVersion = 34/compileSdkVersion = 36/' android/variables.gradle
+          sed -i 's/targetSdkVersion = 34/targetSdkVersion = 36/' android/variables.gradle
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
