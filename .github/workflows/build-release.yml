@@ -57,6 +57,10 @@ jobs:
           cat >> android/app/build.gradle << 'EOF'
 
           android {
+              defaultConfig {
+                  versionCode ${{ github.run_number }}
+                  versionName "1.0.${{ github.run_number }}"
+              }
               signingConfigs {
                   release {
                       storeFile file("release-key.jks")
